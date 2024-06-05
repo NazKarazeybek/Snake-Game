@@ -66,7 +66,53 @@ namespace Snake_Game
             }
             //end of directions
 
-            //for(int i = Snake.Count - 1; )
+            for(int i = Snake.Count - 1; i >= 0; i--)
+            {
+                if (i == 0)
+                {
+
+                    switch (Settings.directions)
+                    {
+                        case "left":
+                            Snake[i].X--;   
+                            break;
+                        case "right":
+                            Snake[i].X++;
+                            break;
+                        case "down":   
+                            Snake[i].Y++;
+                            break;
+                        case "up":
+                            Snake[i].Y--;
+                            break;
+                    }
+
+                    if (Snake[i].X < 0)
+                    {
+                        Snake[i].X = maxWidth;
+                    }
+                    if (Snake[i].X > maxWidth)
+                    {
+                        Snake[i].X = 0;
+                    }
+                    if (Snake[i].Y < 0)
+                    {
+                        Snake[i].Y = maxHeight;
+                    }
+                    if (Snake[i].Y > maxHeight)
+                    {
+                        Snake[i].Y = 0;
+                    }
+
+                }
+                else
+                {
+                    Snake[i].X = Snake[i - 1].X;
+                    Snake[i].Y = Snake[i - 1].Y;
+                }
+            }   
+
+            picCanvas.Invalidate();
 
         }
 
