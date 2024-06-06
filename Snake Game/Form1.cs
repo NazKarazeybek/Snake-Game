@@ -104,6 +104,11 @@ namespace Snake_Game
                         Snake[i].Y = 0;
                     }
 
+
+                    if (Snake[i].X == food.X && Snake[i].Y == food.Y)
+                    {
+                        EatFood();
+                    }
                 }
                 else
                 {
@@ -220,6 +225,22 @@ namespace Snake_Game
         }
         private void EatFood()
         {
+
+            score += 1;
+
+            scoreLabel.Text = "Score: " + score;
+
+            Circle body = new Circle
+            {
+                X = Snake[Snake.Count - 1].X,
+                Y = Snake[Snake.Count - 1].Y
+            };
+
+            Snake.Add(body);
+
+            food = new Circle { X = rand.Next(2, maxWidth), Y = rand.Next(2, maxHeight) };
+
+
 
         }
 
