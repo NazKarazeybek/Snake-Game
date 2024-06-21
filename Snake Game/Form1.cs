@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+using System.Drawing.Imaging; //for jpg compressor
+
 namespace Snake_Game
 {
     public partial class Form1 : Form
@@ -19,18 +21,26 @@ namespace Snake_Game
         int maxWidth;
         int maxHeight;
 
+        int snakeSpeed = 10;
+
         int score;
         int highScore;
 
+        int screenNum = 0; // for title and ending screen 
+
         Random rand = new Random();
 
-        bool goLeft, goRight, goUp, goDown;
+        bool goLeft, goRight, goUp, goDown, escapePressed, enterPressed;
 
 
         public Form1()
         {
             InitializeComponent();
-
+            this.KeyDown += new KeyEventHandler(KeyIsDown);
+            this.KeyUp += new KeyEventHandler(KeyIsUp);
+            backgroundTimer.Tick += new EventHandler(backgroundTimer_Tick);
+            backgroundTimer.Enabled = true;
+            gameOverScreen.Visible = false;
             new Settings();
         }
 
@@ -39,15 +49,9 @@ namespace Snake_Game
             RestartGame();
         }
 
-        private void TakeSnapShot(object sender, EventArgs e)
-        {
-
-        }
-
         private void GameTimerEvent(object sender, EventArgs e)
         {
-            //setting the directions 
-
+            //setting the directions
             if (goLeft)
             {
                 Settings.directions = "left";
@@ -66,7 +70,7 @@ namespace Snake_Game
             }
             //end of directions
 
-            for(int i = Snake.Count - 1; i >= 0; i--)
+            for (int i = Snake.Count - 1; i >= 0; i--)
             {
                 if (i == 0)
                 {
@@ -74,12 +78,12 @@ namespace Snake_Game
                     switch (Settings.directions)
                     {
                         case "left":
-                            Snake[i].X--;   
+                            Snake[i].X --;
                             break;
                         case "right":
                             Snake[i].X++;
                             break;
-                        case "down":   
+                        case "down":
                             Snake[i].Y++;
                             break;
                         case "up":
@@ -109,18 +113,51 @@ namespace Snake_Game
                     {
                         EatFood();
                     }
+
+                    for (int j = 1; j < Snake.Count; j++)
+                    {
+
+                        if (Snake[i].X == Snake[j].X && Snake[i].Y == Snake[j].Y)
+                        {
+                            GameOver();
+                            screenNum = 2;
+                        }
+
+                    }
                 }
                 else
                 {
                     Snake[i].X = Snake[i - 1].X;
                     Snake[i].Y = Snake[i - 1].Y;
                 }
-            }   
+            }
 
             picCanvas.Invalidate();
 
         }
 
+        public void ScreenChange()
+        {
+            if (enterPressed == true && screenNum == 0)
+            {
+                screenNum = 1;
+                startingScreen.Visible = false; // Assuming startingScreen is a control for the start screen
+                RestartGame();
+                enterPressed = false; // Reset the flag
+            }
+            if (enterPressed == true && screenNum == 2)
+            {
+                screenNum = 1;
+                gameOverScreen.Visible = false;
+                RestartGame();
+            }
+
+            if (escapePressed == true)
+            {
+                Application.Exit();
+            }
+
+        }
         private void UpdatePictureBoxGraphic(object sender, PaintEventArgs e) //picCanvas
         {
             Graphics canvas = e.Graphics;
@@ -154,6 +191,16 @@ namespace Snake_Game
             ));
         }
 
+        private void scoreLabel_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void startingScreen_Click(object sender, EventArgs e)
+        {
+
+        }
+
         private void KeyIsUp(object sender, KeyEventArgs e)
         {
 
@@ -174,52 +221,71 @@ namespace Snake_Game
                 goDown = false;
             }
 
+            if (e.KeyCode == Keys.Escape)
+            {
+                escapePressed = false;
+            }
+            if (e.KeyCode == Keys.Enter)
+            {
+                enterPressed = false;
+            }
+
         }
 
         private void KeyIsDown(object sender, KeyEventArgs e)
         {
-
             if (e.KeyCode == Keys.Left && Settings.directions != "right")
             {
-                goLeft = true;  
+                goLeft = true;
             }
-            if (e.KeyCode == Keys.Right && Settings.directions != "left") 
-            { 
+            if (e.KeyCode == Keys.Right && Settings.directions != "left")
+            {
                 goRight = true;
             }
-            if(e.KeyCode == Keys.Up && Settings.directions != "down")
+            if (e.KeyCode == Keys.Up && Settings.directions != "down")
             {
                 goUp = true;
             }
-            if(e.KeyCode == Keys.Down && Settings.directions != "up")
+            if (e.KeyCode == Keys.Down && Settings.directions != "up")
             {
                 goDown = true;
             }
 
-
+            if (e.KeyCode == Keys.Escape)
+            {
+                escapePressed = true;
+            }
+            if (e.KeyCode == Keys.Enter)
+            {
+                enterPressed = true;
+            }
         }
+
+        private void backgroundTimer_Tick(object sender, EventArgs e)
+        {
+            ScreenChange();
+            Refresh();
+        }
+
         private void RestartGame()
         {
             maxWidth = picCanvas.Width / Settings.Width - 1;
             maxHeight = picCanvas.Height / Settings.Height - 1;
 
             Snake.Clear();
-
-            startButton.Enabled = false;
-            snapButton.Enabled = false;
             score = 0;
             scoreLabel.Text = "Score: " + score;
 
             Circle head = new Circle { X = 10, Y = 5 };
-            Snake.Add(head); //adding the head part of the snake to the list
+            Snake.Add(head); // adding the head part of the snake to the list
 
-            for (int i = 0; i < 10;  i++)
+            for (int i = 0; i < 1; i++)
             {
                 Circle body = new Circle();
                 Snake.Add(body);
             }
 
-            food = new Circle { X = rand.Next(2, maxWidth), Y = rand.Next(2, maxHeight)};
+            food = new Circle { X = rand.Next(2, maxWidth), Y = rand.Next(2, maxHeight) };
 
             gameTimer.Start();
         }
@@ -239,14 +305,22 @@ namespace Snake_Game
             Snake.Add(body);
 
             food = new Circle { X = rand.Next(2, maxWidth), Y = rand.Next(2, maxHeight) };
-
-
-
         }
 
         private void GameOver()
         {
+            gameTimer.Stop();
 
+            if (score > highScore)
+            {
+                highScore = score;
+
+                highScoreLabel.Text = "High Score: " + highScore;
+                highScoreLabel.ForeColor = Color.Maroon;
+                //highScoreLabel.TextAlign = ContentAlignment.MiddleCenter;
+            }
+
+            gameOverScreen.Visible = true;
         }
 
 
