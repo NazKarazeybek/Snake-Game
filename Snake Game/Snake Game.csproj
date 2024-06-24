@@ -88,5 +88,11 @@
   <ItemGroup>
     <None Include="Resources\gameLostScreen.jpg" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\introMusic.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\gameOver.wav" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

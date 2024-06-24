@@ -60,7 +60,6 @@
             this.scoreLabel.Size = new System.Drawing.Size(668, 32);
             this.scoreLabel.TabIndex = 3;
             this.scoreLabel.Text = "Score: 0";
-            this.scoreLabel.Click += new System.EventHandler(this.scoreLabel_Click);
             // 
             // highScoreLabel
             // 
@@ -90,7 +89,6 @@
             this.startingScreen.Size = new System.Drawing.Size(796, 758);
             this.startingScreen.TabIndex = 4;
             this.startingScreen.TabStop = false;
-            this.startingScreen.Click += new System.EventHandler(this.startingScreen_Click);
             // 
             // gameOverScreen
             // 
